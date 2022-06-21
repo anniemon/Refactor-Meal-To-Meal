@@ -1,0 +1,36 @@
+version: '3'
+services:
+  docker-host:
+    image: qoomon/docker-host
+    cap_add: ['NET_ADMIN', 'NET_RAW']
+    restart: on-failure
+  mysql:
+    image: mysql/mysql-server:8.0.23
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --init-file /init-backend.sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=fastcampus_bpo
+      - MYSQL_USER=fastcampus
+      - MYSQL_PASSWORD=fastcampus
+      - LANG=C.UTF-8
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+      - ./docker/mysql/init-backend.sql:/init-backend.sql
+    ports:
+      - '3306:3306'
+  redis:
+    image: redis:4-alpine
+    ports:
+      - '6379:6379'
+  nginx:
+    image: nginx:mainline-alpine
+    volumes:
+      - ./docker/nginx/log:/fc/log
+      - ./docker/nginx/tmp:/fc/tmp
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/letsencrypt:/etc/letsencrypt:ro
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - docker-host
