@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyPluginAsync } from 'fastify';
 import { Repository, Not } from 'typeorm';
 import fp from 'fastify-plugin';
-import { Plain, DataState } from '@entity/plain';
+import { Plain, PlainEntity } from '@entity/plain';
 import { DEFAULT_SCHEMA } from './schema';
 
 export interface requestQuery {
@@ -16,18 +16,13 @@ export interface requestParams {
 
 export interface requestBody {
   type: string;
-  state: DataState;
-  flags: number;
-  code: string;
-  name: string;
-  description: string;
-  extras: JSON;
 }
 
 export class PlainCrudHandler {
   server: FastifyInstance;
   //eslint-disable-next-line @typescript-eslint/no-explicit-any
-  entity: any;
+  entity: PlainEntity;
+  routePath: string;
   routePrefix: string;
   //eslint-disable-next-line @typescript-eslint/no-explicit-any
   repository: Repository<any>;
@@ -40,40 +35,36 @@ export class PlainCrudHandler {
   ) {
     this.server = server;
     this.entity = entity;
-    this.routePrefix = `${options.prefix}/${entity.name}`;
+    this.routePath = `${entity.name.toLowerCase()}`;
+    this.routePrefix = `${options.prefix}`;
     this.repository = server.db.getRepository(entity);
-    this.schema = DEFAULT_SCHEMA(entity.name);
+    this.schema = DEFAULT_SCHEMA(entity.name.toLowerCase());
   }
 
+  protected getOptions = (Schema: object): object => {
+    return Object.assign(Schema, { prefix: this.routePrefix });
+  };
+
   protected find = (Schema: object): void => {
-    this.server.get(this.routePrefix, Schema, async (request, reply) => {
-      try {
-        const query: requestQuery = <requestQuery>request.query;
-        const orderValue = ['ASC'].includes(query.order) ? 'ASC' : 'DESC';
-        const dataArray = await this.repository.find({
-          where: {
-            state: Not(DataState.DELETED),
-          },
-          skip: query.offset === undefined ? 0 : query.offset,
-          take: query.limit === undefined ? 10 : query.limit,
-          order: {
-            id: orderValue,
-          },
-        });
-        console.log('query', query);
-        return reply.code(200).send(dataArray);
-      } catch (error) {
-        this.server?.log.error(error);
-        return reply.send(500);
-      }
+    this.server.get(this.routePath, Schema, async (request, reply) => {
+      const query: requestQuery = <requestQuery>request.query;
+      const orderValue = ['ASC'].includes(query.order) ? 'ASC' : 'DESC';
+      const dataArray = await this.repository.find({
+        skip: query.offset === undefined ? 0 : query.offset,
+        take: query.limit === undefined ? 10 : query.limit,
+        order: {
+          id: orderValue,
+        },
+      });
+      return dataArray;
     });
   };
 
   protected get = (Schema: object): void => {
-    this.server.get(this.routePrefix + '/:id', Schema, async (request, reply) => {
+    this.server.get(this.routePath + '/:id', Schema, async (request, reply) => {
       try {
         const params: requestParams = <requestParams>request.params;
-        const data = await this.repository.findBy({ id: Number(params.id), state: Not(DataState.DELETED) });
+        const data = await this.repository.findBy({ id: Number(params.id) });
         if (data.length > 0) return reply.code(200).send(data[0]);
         else return reply.code(404).send('Not Exist');
       } catch (error) {
@@ -84,11 +75,11 @@ export class PlainCrudHandler {
   };
 
   protected create = (Schema: object): void => {
-    this.server.post(this.routePrefix, Schema, async (request, reply) => {
+    this.server.post(this.routePath, Schema, async (request, reply) => {
       try {
         const data: requestBody = <requestBody>request.body;
         await this.repository.save(data);
-        return reply.code(200).send(`${data.name} is saved`);
+        return reply.code(200).send(`${data} is saved`);
       } catch (error) {
         this.server?.log.error(error);
         return reply.send(500);
@@ -97,11 +88,11 @@ export class PlainCrudHandler {
   };
 
   protected update = (Schema: object): void => {
-    this.server.put(this.routePrefix + '/:id', Schema, async (request, reply) => {
+    this.server.put(this.routePath + '/:id', Schema, async (request, reply) => {
       try {
         const params: requestParams = <requestParams>request.params;
         const bodyParams: requestBody = <requestBody>request.body;
-        const data = await this.repository.findBy({ id: Number(params.id), state: Not(DataState.DELETED) });
+        const data = await this.repository.findBy({ id: Number(params.id) });
         if (data.length > 0) {
           const myData = data[0];
           Object.assign(myData, { ...bodyParams });
@@ -118,13 +109,12 @@ export class PlainCrudHandler {
   };
 
   protected delete = (Schema: object): void => {
-    this.server.delete(this.routePrefix + '/:id', Schema, async (request, reply) => {
+    this.server.delete(this.routePath + '/:id', Schema, async (request, reply) => {
       try {
         const params: requestParams = <requestParams>request.params;
-        const data = await this.repository.findBy({ id: Number(params.id), state: Not(DataState.DELETED) });
+        const data = await this.repository.findBy({ id: Number(params.id) });
         if (data.length > 0) {
           const myData = data[0];
-          myData.state = DataState.DELETED;
           await this.repository.update(myData.id, myData);
           return reply.code(200).send(`${myData.id} is removed`);
         } else {
