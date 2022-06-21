@@ -1,7 +1,7 @@
 {
-  "name": "dayone-backend",
-  "version": "0.1.3",
-  "description": "dayone backend, starter kit",
+  "name": "Meal-To-Meal",
+  "version": "0.2.0",
+  "description": "migrate and refactor meal-to-meal project using typescript +fastify + typeorm (boilerplate credit to dayone backend, starter kit)",
   "main": "index.js",
   "scripts": {
     "test": "jest ./build/*.spec.js ./build/api/v0/*.spec.js",
