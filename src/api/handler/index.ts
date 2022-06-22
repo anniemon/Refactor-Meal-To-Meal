@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyPluginAsync } from 'fastify';
-import { Repository, Not } from 'typeorm';
+import { Repository } from 'typeorm';
 import fp from 'fastify-plugin';
 import { Plain, PlainEntity } from '@entity/plain';
 import { DEFAULT_SCHEMA } from './schema';
