@@ -2,9 +2,9 @@
   "name": "Meal-To-Meal",
   "version": "0.2.0",
   "description": "migrate and refactor meal-to-meal project using typescript +fastify + typeorm (boilerplate credit to dayone backend, starter kit)",
-  "main": "index.js",
+  "main": "build/index.js",
   "scripts": {
-    "test": "jest ./build/*.spec.js ./build/api/v0/*.spec.js",
+    "test": "jest ./build/*.spec.js ./build/api/v0/user/*.spec.js --detectOpenHandles",
     "prebuild": "npm-run-all clean lint",
     "build": "tsc",
     "build:watch": "tsc -w",
@@ -25,6 +25,7 @@
     "@api": "build/api",
     "@entity": "build/entity",
     "@data-source": "build/data-source/index.js",
+    "@lib": "build/lib",
     "@server": "build/server.js"
   },
   "repository": {
@@ -39,18 +40,19 @@
   },
   "homepage": "https://github.com/day1co/fastify-typescript-typeorm#readme",
   "dependencies": {
-    "fastify": "^4.0.3",
-    "fastify-plugin": "^3.0.1",
     "@fastify/cors": "^8.0.0",
     "@fastify/swagger": "^7.3.0",
+    "fastify": "^4.0.3",
+    "fastify-plugin": "^3.0.1",
+    "module-alias": "^2.2.2",
     "mysql2": "^2.3.3",
     "nodemon": "^2.0.16",
     "pino": "^8.0.0",
     "reflect-metadata": "^0.1.13",
-    "module-alias": "^2.2.2",
     "typeorm": "0.3.6"
   },
   "devDependencies": {
+    "@fastify/cookie": "^7.0.0",
     "@types/jest": "^28.1.1",
     "@types/node": "^18.0.0",
     "@types/pino": "^7.0.5",
@@ -63,6 +65,7 @@
     "npm-run-all": "^4.1.5",
     "pino-pretty": "^8.0.0",
     "prettier": "^2.7.1",
+    "ts-jest": "^28.0.5",
     "typescript": "^4.7.3"
   }
 }
