@@ -1,9 +1,10 @@
 import 'module-alias/register';
-import { build, localIP, port } from './server';
+import { build, localIP, port } from '@server';
+
 const start = async () => {
   let server = null;
   try {
-    server = build();
+    server = await build();
     await server.listen({ port: port as number, host: localIP as string });
     server?.log.info('Server started successfully');
   } catch (error) {
