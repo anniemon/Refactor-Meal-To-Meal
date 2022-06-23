@@ -1,6 +1,5 @@
 import { User } from '@entity/user';
 import { makeRoute, PlainCrudHandler } from '@api/handler';
-import { POST } from './schema';
 
 interface UserRequestBody {
   user_nickname: string;
@@ -20,8 +19,8 @@ class UserCrudHandler extends PlainCrudHandler {
 
   public bindRoute = async () => {
     try {
-      this.routePath = `user`;
-      this.signup(POST());
+      this.routePath = `/user`;
+      this.signup(this.schema.POST);
     } catch (error: unknown) {
       this.server?.log.error(error);
     }
