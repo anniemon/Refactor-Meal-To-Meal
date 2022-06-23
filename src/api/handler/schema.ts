@@ -13,12 +13,7 @@ export const GET = (entityName: string) => {
           properties: {
             id: { type: 'number' },
             type: { type: 'string' },
-            state: { type: 'string' },
-            flags: { type: 'number' },
-            code: { type: 'string' },
             name: { type: 'string' },
-            description: { type: 'string' },
-            extras: { type: 'object' },
           },
         },
         /*
@@ -56,12 +51,7 @@ export const GET_ID = (entityName: string) => {
           properties: {
             id: { type: 'number' },
             type: { type: 'string' },
-            state: { type: 'string' },
-            flags: { type: 'number' },
-            code: { type: 'string' },
             name: { type: 'string' },
-            description: { type: 'string' },
-            extras: { type: 'object' },
           },
         },
         /*
@@ -71,12 +61,7 @@ export const GET_ID = (entityName: string) => {
           properties: {
             id: { type: 'number' },
             type: { type: 'string' },
-            state: { type: 'string' },
-            flags: { type: 'number' },
-            code: { type: 'string' },
             name: { type: 'string' },
-            description: { type: 'string' },
-            extras: { type: 'object' },
           },
         },
         */
@@ -97,12 +82,7 @@ export const POST = (entityName: string) => {
         type: 'object',
         properties: {
           type: { type: 'string' },
-          state: { type: 'string' },
-          flags: { type: 'number' },
-          code: { type: 'string' },
           name: { type: 'string' },
-          description: { type: 'string' },
-          extras: { type: 'object' },
         },
       },
       response: {
@@ -112,12 +92,7 @@ export const POST = (entityName: string) => {
           properties: {
             id: { type: 'number' },
             type: { type: 'string' },
-            state: { type: 'string' },
-            flags: { type: 'number' },
-            code: { type: 'string' },
             name: { type: 'string' },
-            description: { type: 'string' },
-            extras: { type: 'object' },
           },
         },
         /*
@@ -127,12 +102,7 @@ export const POST = (entityName: string) => {
           properties: {
             id: { type: 'number' },
             type: { type: 'string' },
-            state: { type: 'string' },
-            flags: { type: 'number' },
-            code: { type: 'string' },
             name: { type: 'string' },
-            description: { type: 'string' },
-            extras: { type: 'object' },
           },
         },
         */
@@ -161,12 +131,7 @@ export const PUT = (entityName: string) => {
         type: 'object',
         properties: {
           type: { type: 'string' },
-          state: { type: 'string' },
-          flags: { type: 'number' },
-          code: { type: 'string' },
           name: { type: 'string' },
-          description: { type: 'string' },
-          extras: { type: 'object' },
         },
       },
       response: {
@@ -176,12 +141,7 @@ export const PUT = (entityName: string) => {
           properties: {
             id: { type: 'number' },
             type: { type: 'string' },
-            state: { type: 'string' },
-            flags: { type: 'number' },
-            code: { type: 'string' },
             name: { type: 'string' },
-            description: { type: 'string' },
-            extras: { type: 'object' },
           },
         },
         /*
@@ -191,12 +151,7 @@ export const PUT = (entityName: string) => {
           properties: {
             id: { type: 'number' },
             type: { type: 'string' },
-            state: { type: 'string' },
-            flags: { type: 'number' },
-            code: { type: 'string' },
             name: { type: 'string' },
-            description: { type: 'string' },
-            extras: { type: 'object' },
           },
         },
         */
@@ -228,12 +183,7 @@ export const DELETE = (entityName: string) => {
           properties: {
             id: { type: 'number' },
             type: { type: 'string' },
-            state: { type: 'string' },
-            flags: { type: 'number' },
-            code: { type: 'string' },
             name: { type: 'string' },
-            description: { type: 'string' },
-            extras: { type: 'object' },
           },
         },
         /*
@@ -243,12 +193,7 @@ export const DELETE = (entityName: string) => {
           properties: {
             id: { type: 'number' },
             type: { type: 'string' },
-            state: { type: 'string' },
-            flags: { type: 'number' },
-            code: { type: 'string' },
             name: { type: 'string' },
-            description: { type: 'string' },
-            extras: { type: 'object' },
           },
         },
         */
