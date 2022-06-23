@@ -1,4 +1,4 @@
-export const POST = (entityName = 'user') => {
+export const SIGNUP = (entityName = 'user') => {
   return {
     schema: {
       description: `${entityName} user 회원가입`,
@@ -19,6 +19,33 @@ export const POST = (entityName = 'user') => {
           type: 'object',
           properties: {
             data: { type: 'number' },
+          },
+        },
+      },
+    },
+  };
+};
+
+export const LOGIN = (entityName = 'user') => {
+  return {
+    schema: {
+      description: `${entityName} user 로그인`,
+      tags: [`${entityName}`],
+      summary: `post ${entityName} object`,
+      security: [{ apiKey: [] }],
+      body: {
+        type: 'object',
+        properties: {
+          user_email: { type: 'string' },
+          user_password: { type: 'string' },
+        },
+      },
+      response: {
+        200: {
+          description: 'login success',
+          type: 'object',
+          properties: {
+            accessToken: { type: 'string' },
           },
         },
       },
