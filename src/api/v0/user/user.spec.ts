@@ -20,13 +20,13 @@ describe('test user signup', () => {
         url: '/api/v0/user/signup',
         payload: {
           type: 'SIGNUP',
+          name: 'user',
           user_nickname: 'asdf',
           user_email: 'asdf@gmail.com',
           user_password: 'password',
         },
       });
-
-      expect(res.statusCode).toBe(201);
+      expect(res.statusCode).toBe(200);
     });
   } catch (err) {
     console.error(err);
