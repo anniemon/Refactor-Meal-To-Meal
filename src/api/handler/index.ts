@@ -1,6 +1,5 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyPluginAsync } from 'fastify';
 import { Repository } from 'typeorm';
-import fp from 'fastify-plugin';
 import { Plain, PlainEntity } from '@entity/plain';
 import { DEFAULT_SCHEMA } from './schema';
 
@@ -16,11 +15,12 @@ export interface requestParams {
 
 export interface requestBody {
   type: string;
+  name: string;
 }
 
 export class PlainCrudHandler {
   server: FastifyInstance;
-  //eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options: FastifyPluginOptions;
   entity: PlainEntity;
   routePath: string;
   routePrefix: string;
@@ -31,11 +31,11 @@ export class PlainCrudHandler {
     server: FastifyInstance,
     options: FastifyPluginOptions,
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    entity: any
+    entity: PlainEntity
   ) {
     this.server = server;
     this.entity = entity;
-    this.routePath = `${entity.name.toLowerCase()}`;
+    this.routePath = `/${entity.name.toLowerCase()}`;
     this.routePrefix = `${options.prefix}`;
     this.repository = server.db.getRepository(entity);
     this.schema = DEFAULT_SCHEMA(entity.name.toLowerCase());
@@ -46,7 +46,7 @@ export class PlainCrudHandler {
   };
 
   protected find = (Schema: object): void => {
-    this.server.get(this.routePath, Schema, async (request, reply) => {
+    this.server.get(`${this.routePath}`, this.getOptions(Schema), async (request) => {
       const query: requestQuery = <requestQuery>request.query;
       const orderValue = ['ASC'].includes(query.order) ? 'ASC' : 'DESC';
       const dataArray = await this.repository.find({
@@ -61,68 +61,56 @@ export class PlainCrudHandler {
   };
 
   protected get = (Schema: object): void => {
-    this.server.get(this.routePath + '/:id', Schema, async (request, reply) => {
-      try {
-        const params: requestParams = <requestParams>request.params;
-        const data = await this.repository.findBy({ id: Number(params.id) });
-        if (data.length > 0) return reply.code(200).send(data[0]);
-        else return reply.code(404).send('Not Exist');
-      } catch (error) {
-        this.server?.log.error(error);
-        return reply.send(500);
+    this.server.get(`${this.routePath}/:id`, this.getOptions(Schema), async (request) => {
+      const params: requestParams = <requestParams>request.params;
+      const data = await this.repository.findBy({ id: Number(params.id) });
+      if (data.length > 0) return data[0];
+      else {
+        throw new Error(`${params.id} does Not Exist`);
       }
     });
   };
 
   protected create = (Schema: object): void => {
-    this.server.post(this.routePath, Schema, async (request, reply) => {
+    this.server.post(`${this.routePath}`, this.getOptions(Schema), async (request) => {
       try {
         const data: requestBody = <requestBody>request.body;
-        await this.repository.save(data);
-        return reply.code(200).send(`${data} is saved`);
+        const res = await this.repository.save(data);
+        return { data: { id: res.id } };
       } catch (error) {
+        console.log('81');
         this.server?.log.error(error);
-        return reply.send(500);
       }
     });
   };
 
   protected update = (Schema: object): void => {
-    this.server.put(this.routePath + '/:id', Schema, async (request, reply) => {
-      try {
-        const params: requestParams = <requestParams>request.params;
-        const bodyParams: requestBody = <requestBody>request.body;
-        const data = await this.repository.findBy({ id: Number(params.id) });
-        if (data.length > 0) {
-          const myData = data[0];
-          Object.assign(myData, { ...bodyParams });
-          await this.repository.update(myData.id, myData);
-          return reply.code(200).send(`${myData.extras} is saved`);
-        } else {
-          return reply.code(404).send('Not Exist');
-        }
-      } catch (error) {
-        this.server?.log.error(error);
-        return reply.send(500);
+    this.server.put(`${this.routePath}/:id`, this.getOptions(Schema), async (request) => {
+      const params: requestParams = <requestParams>request.params;
+      const bodyParams: requestBody = <requestBody>request.body;
+      const data = await this.repository.findBy({ id: Number(params.id) });
+      if (data.length > 0) {
+        const myData = data[0];
+        Object.assign(myData, { ...bodyParams });
+        await this.repository.update(myData.id, myData);
+        const updatedData = await this.repository.findBy({ id: myData.id });
+        return { data: updatedData };
+      } else {
+        throw new Error(`${params.id} does Not Exist`);
       }
     });
   };
 
   protected delete = (Schema: object): void => {
-    this.server.delete(this.routePath + '/:id', Schema, async (request, reply) => {
-      try {
-        const params: requestParams = <requestParams>request.params;
-        const data = await this.repository.findBy({ id: Number(params.id) });
-        if (data.length > 0) {
-          const myData = data[0];
-          await this.repository.update(myData.id, myData);
-          return reply.code(200).send(`${myData.id} is removed`);
-        } else {
-          return reply.code(404).send('Not Exist');
-        }
-      } catch (error) {
-        this.server?.log.error(error);
-        return reply.send(500);
+    this.server.delete(`${this.routePath}/:id`, this.getOptions(Schema), async (request) => {
+      const params: requestParams = <requestParams>request.params;
+      const data = await this.repository.findBy({ id: Number(params.id) });
+      if (data.length > 0) {
+        const myData = data[0];
+        await this.repository.update(myData.id, myData);
+        return `${myData.id} is removed`;
+      } else {
+        throw new Error(`${params.id} does Not Exist`);
       }
     });
   };
@@ -142,12 +130,12 @@ export class PlainCrudHandler {
 }
 
 //eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const makeRoute = (entity: any, handler: any = PlainCrudHandler) => {
-  const route: FastifyPluginAsync = async (server: FastifyInstance, options: FastifyPluginOptions) => {
-    const uris = new handler(server, options, entity);
+export const makeRoute = (entity: unknown, handler = PlainCrudHandler) => {
+  const route = async (server: FastifyInstance, options: FastifyPluginOptions) => {
+    const uris = new handler(server, options, entity as PlainEntity);
     await uris.bindRoute();
   };
-  return fp(route);
+  return route;
 };
 
 export default makeRoute(Plain);
