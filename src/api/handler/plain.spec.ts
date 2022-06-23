@@ -18,12 +18,7 @@ describe('test plain', () => {
           url: '/api/v0/plain',
           payload: {
             type: 'TEST',
-            state: 'NORMAL',
-            flags: i,
-            code: null,
             name: `number-${i}`,
-            description: null,
-            extras: { foo: 'bar' },
           },
         });
         expect(res.statusCode).toEqual(200);

@@ -1,4 +1,4 @@
-import { FastifyInstance, FastifyPluginOptions, FastifyPluginAsync } from 'fastify';
+import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { Repository } from 'typeorm';
 import { Plain, PlainEntity } from '@entity/plain';
 import { DEFAULT_SCHEMA } from './schema';
@@ -78,7 +78,6 @@ export class PlainCrudHandler {
         const res = await this.repository.save(data);
         return { data: { id: res.id } };
       } catch (error) {
-        console.log('81');
         this.server?.log.error(error);
       }
     });

@@ -1,7 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 // import { validateRoutes, validateAccessToken } from '@lib/middleware/validate-access-token';
-import fs from 'fs';
 
 import user from './user';
 import plain from '@api/handler';
