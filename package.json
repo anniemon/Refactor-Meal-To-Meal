@@ -41,6 +41,7 @@
   "homepage": "https://github.com/day1co/fastify-typescript-typeorm#readme",
   "dependencies": {
     "@fastify/cors": "^8.0.0",
+    "@fastify/jwt": "^6.1.0",
     "@fastify/swagger": "^7.3.0",
     "fastify": "^4.0.3",
     "fastify-plugin": "^3.0.1",
