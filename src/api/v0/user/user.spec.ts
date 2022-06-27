@@ -47,6 +47,7 @@ describe('test user', () => {
       },
     });
     expect(resOk.statusCode).toEqual(200);
+    expect(JSON.parse(resOk.body)).toHaveProperty('accessToken');
 
     const resWrongEmail = await server.inject({
       method: 'POST',
