@@ -3,7 +3,7 @@ export const SIGNUP = (entityName = 'user') => {
     schema: {
       description: `${entityName} user 회원가입`,
       tags: [`${entityName}`],
-      summary: `post ${entityName} object`,
+      summary: `signup ${entityName}`,
       security: [{ apiKey: [] }],
       body: {
         type: 'object',
@@ -31,7 +31,7 @@ export const LOGIN = (entityName = 'user') => {
     schema: {
       description: `${entityName} user 로그인`,
       tags: [`${entityName}`],
-      summary: `post ${entityName} object`,
+      summary: `login ${entityName}`,
       security: [{ apiKey: [] }],
       body: {
         type: 'object',
@@ -47,6 +47,29 @@ export const LOGIN = (entityName = 'user') => {
           properties: {
             accessToken: { type: 'string' },
           },
+        },
+      },
+    },
+  };
+};
+
+export const LOGOUT = (entityName = 'user') => {
+  return {
+    schema: {
+      description: `${entityName} user 로그아웃`,
+      tags: [`${entityName}`],
+      summary: `logout ${entityName} `,
+      security: [{ apiKey: [] }],
+      headers: {
+        type: 'object',
+        properties: {
+          authorization: { type: 'string' },
+        },
+      },
+      response: {
+        200: {
+          description: 'logout success',
+          type: 'object',
         },
       },
     },
