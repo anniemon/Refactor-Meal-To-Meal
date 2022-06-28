@@ -1,7 +1,6 @@
 import { User } from '@entity/user';
 import { makeRoute, PlainCrudHandler } from '@api/handler';
 import { SIGNUP, LOGIN, LOGOUT } from './schema';
-import { validateAccessToken } from '@lib/middleware/validate-access-token';
 
 interface UserRequestBody {
   user_nickname?: string;
@@ -20,7 +19,6 @@ class UserCrudHandler extends PlainCrudHandler {
   };
 
   protected login = (Schema: object): void => {
-    //TODO: jwt
     this.server.post(`${this.routePath}/login`, this.getOptions(Schema), async (request) => {
       const requestBody: UserRequestBody = <UserRequestBody>request.body;
       const data = await this.repository.findOneBy({ user_email: requestBody.user_email });
@@ -35,11 +33,17 @@ class UserCrudHandler extends PlainCrudHandler {
 
   protected logout = (Schema: object): void => {
     this.server.get(`${this.routePath}/logout`, this.getOptions(Schema), async (request) => {
-      const accessToken = request.headers.authorization;
-      console.log(accessToken);
-      const at = validateAccessToken();
-      console.log(at, 'what is at');
-      return at;
+      const authorization = request.headers.authorization;
+      if (!authorization) {
+        throw new Error(`no access token found`);
+      }
+      const accessToken = authorization.split(' ')[1];
+      const verified = await this.server.jwt.verify(accessToken);
+      if (!verified) {
+        throw new Error(`invalid access token`);
+      }
+      request.headers.authorization = '';
+      return { message: `logged out successfully` };
     });
   };
 
