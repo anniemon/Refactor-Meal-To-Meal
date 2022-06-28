@@ -8,7 +8,7 @@ import plain from '@api/handler';
 
 const IndexRoute: FastifyPluginAsync = async (server: FastifyInstance, options: FastifyPluginOptions) => {
   server.register(plain, options);
-  server.register(jwt, { secret: 'secret' });
+  server.register(jwt, { secret: process.env.JWT_SECRET as string });
   server.register(user, options);
 };
 
