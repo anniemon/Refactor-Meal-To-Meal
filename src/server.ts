@@ -11,6 +11,8 @@ import errorHandler from '@lib/middleware/error-handler';
 
 import plain from '@api/handler';
 import apiv0 from './api/v0';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const build = async () => {
   server.register(fastifyCors, {
