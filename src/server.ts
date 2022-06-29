@@ -11,8 +11,10 @@ import errorHandler from '@lib/middleware/error-handler';
 
 import plain from '@api/handler';
 import apiv0 from './api/v0';
+import dotenv from 'dotenv';
+dotenv.config();
 
-export const build = async (config: object = {}) => {
+export const build = async () => {
   server.register(fastifyCors, {
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -23,7 +25,6 @@ export const build = async (config: object = {}) => {
     //secret: 'my-secret', // for cookies signature
     //parseOptions: {}, // options for parsing cookies
   } as FastifyCookieOptions);
-  server.decorate('config', config);
   server.register(db);
   server.register(swagger);
   server.register(addHookLocals);
@@ -33,7 +34,7 @@ export const build = async (config: object = {}) => {
   server.register(apiv0, { prefix: '/api/v0' });
   server.get('/', async function (request, reply) {
     try {
-      return reply.code(200).send(`server: ${(config as { [k: string]: string })['buildVersion']}`);
+      return reply.code(200).send(`server builds`);
     } catch (error) {
       return reply.send(500);
     }

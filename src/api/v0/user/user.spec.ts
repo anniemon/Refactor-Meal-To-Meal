@@ -47,6 +47,7 @@ describe('test user', () => {
       },
     });
     expect(resOk.statusCode).toEqual(200);
+    expect(JSON.parse(resOk.body)).toHaveProperty('accessToken');
 
     const resWrongEmail = await server.inject({
       method: 'POST',
@@ -71,5 +72,30 @@ describe('test user', () => {
       },
     });
     expect(resWrongPw.statusCode).toEqual(500);
+  });
+
+  test('유저 로그아웃', async () => {
+    server.jwt.verify = jest.fn().mockResolvedValue(`verified`);
+    const res = await server.inject({
+      method: 'GET',
+      url: '/api/v0/user/logout',
+      headers: { Authorization: `Bearer access-token` },
+    });
+    expect(res.statusCode).toEqual(200);
+    expect(res.raw.req.headers.authorization).toEqual('');
+
+    const resNoAccessToken = await server.inject({
+      method: 'GET',
+      url: '/api/v0/user/logout',
+    });
+    expect(resNoAccessToken.statusCode).toEqual(500);
+
+    server.jwt.verify = jest.fn().mockResolvedValue(null);
+    const resWrongAccessToken = await server.inject({
+      method: 'GET',
+      url: '/api/v0/user/logout',
+      headers: { authorization: `Bearer wrong-access-token` },
+    });
+    expect(resWrongAccessToken.statusCode).toEqual(500);
   });
 });

@@ -1,5 +1,6 @@
 import { User } from '@entity/user';
 import { makeRoute, PlainCrudHandler } from '@api/handler';
+import { SIGNUP, LOGIN, LOGOUT } from './schema';
 
 interface UserRequestBody {
   user_nickname?: string;
@@ -18,27 +19,40 @@ class UserCrudHandler extends PlainCrudHandler {
   };
 
   protected login = (Schema: object): void => {
-    //TODO: jwt
     this.server.post(`${this.routePath}/login`, this.getOptions(Schema), async (request) => {
       const requestBody: UserRequestBody = <UserRequestBody>request.body;
       const data = await this.repository.findOneBy({ user_email: requestBody.user_email });
       if (data && data.user_password === requestBody.user_password) {
-        return 'ok';
+        const accessToken = await this.server.jwt.sign(data, { expiresIn: '1d' });
+        return { accessToken: accessToken };
       } else {
-        throw new Error(`${data.user_email} does Not Exist`);
+        throw new Error(`please check user email or password`);
       }
     });
   };
 
   protected logout = (Schema: object): void => {
-    this.server.get(`${this.routePath}/logout`, this.getOptions(Schema), async (request) => {});
+    this.server.get(`${this.routePath}/logout`, this.getOptions(Schema), async (request) => {
+      const authorization = request.headers.authorization;
+      if (!authorization) {
+        throw new Error(`no access token found`);
+      }
+      const accessToken = authorization.split(' ')[1];
+      const verified = await this.server.jwt.verify(accessToken);
+      if (!verified) {
+        throw new Error(`invalid access token`);
+      }
+      request.headers.authorization = '';
+      return { message: `logged out successfully` };
+    });
   };
 
   public bindRoute = async () => {
     try {
       this.routePath = `/user`;
-      this.signup(this.schema.POST);
-      this.login(this.schema.POST);
+      this.signup(SIGNUP());
+      this.login(LOGIN());
+      this.logout(LOGOUT());
     } catch (error: unknown) {
       this.server?.log.error(error);
     }

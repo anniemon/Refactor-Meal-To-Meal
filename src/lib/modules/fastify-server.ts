@@ -19,7 +19,6 @@ declare module 'fastify' {
     Logger = FastifyLoggerInstance
   > {
     db: DataSource;
-    config: object;
     routes: Array<object>;
     routesMap: object;
   }
