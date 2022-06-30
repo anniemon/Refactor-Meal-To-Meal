@@ -1,6 +1,7 @@
 import { User } from '@entity/user';
 import { makeRoute, PlainCrudHandler } from '@api/handler';
 import { SIGNUP, LOGIN, LOGOUT } from './schema';
+import bcrypt from 'bcrypt';
 
 interface UserRequestBody {
   user_nickname?: string;
@@ -9,10 +10,11 @@ interface UserRequestBody {
 }
 
 class UserCrudHandler extends PlainCrudHandler {
-  //TODO: 비밀번호 암호화, 유효성 검사
   protected signup = (Schema: object): void => {
     this.server.post(`${this.routePath}/signup`, this.getOptions(Schema), async (request) => {
       const requestBody: UserRequestBody = <UserRequestBody>request.body;
+      const hashed = await bcrypt.hash(requestBody.user_password, 10);
+      requestBody.user_password = hashed;
       const data = await this.repository.save(requestBody);
       return { data: { id: data.id } };
     });
@@ -22,7 +24,9 @@ class UserCrudHandler extends PlainCrudHandler {
     this.server.post(`${this.routePath}/login`, this.getOptions(Schema), async (request) => {
       const requestBody: UserRequestBody = <UserRequestBody>request.body;
       const data = await this.repository.findOneBy({ user_email: requestBody.user_email });
-      if (data && data.user_password === requestBody.user_password) {
+      const isMatched = await bcrypt.compare(requestBody.user_password, data.user_password);
+      if (isMatched) {
+        delete data.user_password;
         const accessToken = await this.server.jwt.sign(data, { expiresIn: '1d' });
         return { accessToken: accessToken };
       } else {
