@@ -4,6 +4,9 @@ import fp from 'fastify-plugin';
 const errorHandler: FastifyPluginAsync = async (server: FastifyInstance) => {
   server.setErrorHandler(async (error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
     server?.log.error(error);
+    if (error.validation) {
+      reply.status(400).send(Object.assign(error, { code: '400' }));
+    }
     reply.status(500).send(Object.assign(error, { code: '500' }));
   });
 };

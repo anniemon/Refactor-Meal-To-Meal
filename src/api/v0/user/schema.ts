@@ -12,6 +12,7 @@ export const SIGNUP = (entityName = 'user') => {
           user_email: { type: 'string' },
           user_password: { type: 'string' },
         },
+        required: ['user_nickname', 'user_email', 'user_password'],
       },
       response: {
         201: {
@@ -39,6 +40,7 @@ export const LOGIN = (entityName = 'user') => {
           user_email: { type: 'string' },
           user_password: { type: 'string' },
         },
+        required: ['user_email', 'user_password'],
       },
       response: {
         200: {
@@ -65,6 +67,7 @@ export const LOGOUT = (entityName = 'user') => {
         properties: {
           authorization: { type: 'string' },
         },
+        required: ['authorization'],
       },
       response: {
         200: {
