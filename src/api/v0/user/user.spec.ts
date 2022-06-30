@@ -33,6 +33,42 @@ describe('test user', () => {
     } catch (err) {
       console.error(err);
     }
+
+    const resNoEmail = await server.inject({
+      method: 'POST',
+      url: '/api/v0/user/signup',
+      payload: {
+        type: 'SIGNUP',
+        name: 'user',
+        user_nickname: `asdf`,
+        user_password: 'password',
+      },
+    });
+    expect(resNoEmail.statusCode).toBe(400);
+
+    const resNoPw = await server.inject({
+      method: 'POST',
+      url: '/api/v0/user/signup',
+      payload: {
+        type: 'SIGNUP',
+        name: 'user',
+        user_nickname: `asdf`,
+        user_email: `asdf@gmail.com`,
+      },
+    });
+    expect(resNoPw.statusCode).toBe(400);
+
+    const resNoNickname = await server.inject({
+      method: 'POST',
+      url: '/api/v0/user/signup',
+      payload: {
+        type: 'SIGNUP',
+        name: 'user',
+        user_email: `asdf@gmail.com`,
+        user_password: 'password',
+      },
+    });
+    expect(resNoNickname.statusCode).toBe(400);
   });
 
   test('유저 로그인', async () => {
@@ -48,6 +84,30 @@ describe('test user', () => {
     });
     expect(resOk.statusCode).toEqual(200);
     expect(JSON.parse(resOk.body)).toHaveProperty('accessToken');
+
+    const resNoEmail = await server.inject({
+      method: 'POST',
+      url: '/api/v0/user/login',
+      payload: {
+        type: 'LOGIN',
+        name: 'user',
+        user_nickname: `asdf`,
+        user_password: 'password',
+      },
+    });
+    expect(resNoEmail.statusCode).toBe(400);
+
+    const resNoPw = await server.inject({
+      method: 'POST',
+      url: '/api/v0/user/login',
+      payload: {
+        type: 'LOGIN',
+        name: 'user',
+        user_nickname: `asdf`,
+        user_email: `asdf@gmail.com`,
+      },
+    });
+    expect(resNoPw.statusCode).toBe(400);
 
     const resWrongEmail = await server.inject({
       method: 'POST',
@@ -88,7 +148,7 @@ describe('test user', () => {
       method: 'GET',
       url: '/api/v0/user/logout',
     });
-    expect(resNoAccessToken.statusCode).toEqual(500);
+    expect(resNoAccessToken.statusCode).toEqual(400);
 
     server.jwt.verify = jest.fn().mockResolvedValue(null);
     const resWrongAccessToken = await server.inject({
